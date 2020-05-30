@@ -24,7 +24,7 @@ declare namespace Eris {
   // TODO there's also toJSON(): JSONCache, though, SimpleJSON should suffice
 
   type GuildTextableChannel = TextChannel | NewsChannel
-  type TextableChannel = GuildTextableChannel | PrivateChannel;
+  type TextableChannel = Textable & GuildTextableChannel | PrivateChannel;
   type AnyChannel = AnyGuildChannel | PrivateChannel;
   type AnyGuildChannel = GuildTextableChannel | VoiceChannel | CategoryChannel | StoreChannel;
 
@@ -916,6 +916,11 @@ declare namespace Eris {
     (event: "resume", listener: () => void): T;
   }
 
+  interface ChannelFollow {
+    channel_id: string;
+    webhook_id: string;
+  }
+
   export class Client extends EventEmitter {
     token?: string;
     gatewayURL?: string;
@@ -1112,6 +1117,7 @@ declare namespace Eris {
       reason?: string
     ): Promise<number>;
     crosspostMessage(channelID: string, messageID: string): Promise<Message>;
+    followChannel(channelID: string, webhookChannelID: string): Promise<ChannelFollow>;
     getGuildEmbed(guildID: string): Promise<GuildEmbed>;
     getGuildPreview(guildID: string): Promise<GuildPreview>;
     getGuildIntegrations(guildID: string): Promise<GuildIntegration[]>;
@@ -1380,6 +1386,7 @@ declare namespace Eris {
     explicitContentFilter: number;
     publicUpdatesChannelID: string;
     rulesChannelID: string;
+    maxVideoChannelUsers?: number;
     widgetEnabled?: boolean | null;
     widgetChannelID?: string | null;
     approximateMemberCount?: number;
@@ -1594,6 +1601,7 @@ declare namespace Eris {
     rateLimitPerUser: 0;
     messages: Collection<Message<NewsChannel>>;
     crosspostMessage(messageID: string): Promise<Message<NewsChannel>>;
+    follow(webhookChannelID: string): Promise<ChannelFollow>;
     getMessage(messageID: string): Promise<Message<NewsChannel>>;
     getMessages(limit?: number, before?: string, after?: string, around?: string): Promise<Message<NewsChannel>[]>;
     getPins(): Promise<Message<NewsChannel>[]>;
